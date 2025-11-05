@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import  { useMemo, useState } from 'react'
 import { detectCsvDuckTypes } from '../lib/duckdb'
 import { mapDuckToTarget, TARGET_DBS } from '../lib/typeMapping'
 import type { TargetDB } from '../lib/typeMapping'
