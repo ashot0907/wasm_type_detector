@@ -1,74 +1,101 @@
-# React + TypeScript + Vite
+# 🦆 DuckDB WASM Type Detector
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A beautiful web app built with **Vite + React + TypeScript + TailwindCSS** that uses **DuckDB-WASM** to detect column types in CSV files directly in your browser — no backend needed 🚀
 
-Currently, two official plugins are available:
+> 💡 Perfect for analysts, data engineers, and developers who want to preview and map CSV schema to multiple databases quickly.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## ✨ Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+✅ **Detect column types locally** — uses DuckDB running entirely in your browser (WebAssembly).  
+✅ **Multi-database mapping** — instantly converts DuckDB types to:
+- ClickHouse  
+- PostgreSQL  
+- MySQL  
+- Oracle  
+- MongoDB  
+- Redis  
+- Neo4j  
 
-## Expanding the ESLint configuration
+✅ **CSV preview & schema table** — view all detected columns and their mapped data types.  
+✅ **Copy or export** —  
+- **Copy query** → copies generated DDL/CREATE TABLE for all selected databases.  
+- **Export file as CSV** → downloads the detected schema as a `.csv` file.  
+✅ **Zero server** — everything runs on the client-side.  
+✅ **Deploy-ready** — works on Netlify, Vercel, GitHub Pages, etc.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🧩 Tech Stack
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+| Layer | Tech |
+|-------|------|
+| Core | [Vite](https://vitejs.dev/), [React](https://react.dev/), [TypeScript](https://www.typescriptlang.org/) |
+| DB Engine | [@duckdb/duckdb-wasm](https://duckdb.org/docs/api/wasm) |
+| UI | [TailwindCSS](https://tailwindcss.com/), [lucide-react](https://lucide.dev/) |
+| Notifications | [sonner](https://ui.sonner.dev/) |
+| Hosting | [Netlify](https://www.netlify.com/) |
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🚀 Run Locally
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### 1️⃣ Clone repo
+```bash
+git clone https://github.com/ashot0907/wasm_type_detector.git
+cd wasm_type_detector
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-# wasm_type_detector
+2️⃣ Install dependencies
+npm install
+
+3️⃣ Start dev server
+npm run dev
+
+
+🧠 How It Works
+
+You upload a CSV file.
+
+DuckDB-WASM runs locally and analyzes the file structure (DESCRIBE SELECT * FROM read_csv_auto(...)).
+
+The app displays the detected columns and DuckDB types.
+
+You select one or multiple target databases — and it instantly maps types for each (e.g. VARCHAR → text for PostgreSQL, String → String for ClickHouse).
+
+You can:
+
+🧾 Copy the generated DDL
+
+💾 Export the current table as CSV
+
+🧱 Project Structure
+src/
+ ├── components/
+ │    └── DetectCSV.tsx        # Main UI
+ ├── lib/
+ │    ├── duckdb.ts            # DuckDB-WASM setup
+ │    ├── typeMapping.ts       # Type mappings for multiple DBs
+ │    └── ddl.ts               # DDL generation
+ ├── index.css                 # Tailwind styles
+ └── main.tsx                  # App entrypoint
+
+🧰 Type Mapping Example
+
+| DuckDB Type | ClickHouse | PostgreSQL | MySQL | Oracle | MongoDB | Redis | Neo4j |
+|--------------|-------------|-------------|--------|---------|----------|--------|
+| INTEGER | Int32 | integer | int | NUMBER(10) | Number | integer | Integer |
+| VARCHAR | String | text | varchar(255) | VARCHAR2(255) | String | string | String |
+| BOOLEAN | UInt8 | boolean | tinyint(1) | NUMBER(1) | Boolean | boolean | Boolean |
+| TIMESTAMP | DateTime64 | timestamp | datetime(6) | TIMESTAMP | Date | string | DateTime |
+
+🧑‍💻 Credits
+
+Built with ❤️ by @ashot0907
+
+Powered by DuckDB-WASM
+
+
+📜 License
+
+MIT © 2025 Ashot
