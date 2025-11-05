@@ -4,27 +4,35 @@ import { detectCsvDuckTypes } from '../lib/duckdb'
 import { mapDuckToTarget, TARGET_DBS } from '../lib/typeMapping'
 import type { TargetDB } from '../lib/typeMapping'
 import { toast, Toaster } from 'sonner'
-import { UploadCloud, Sparkles, FileText, Loader2, Database } from 'lucide-react'
+import { UploadCloud, Sparkles, FileText, Loader2, Database, CheckSquare } from 'lucide-react'
 import clsx from 'clsx'
 
 type Row = { name: string; duckType: string }
+
+/** Утилита: переключение выбранного значения в массиве */
+function toggle<T>(arr: T[], value: T): T[] {
+  return arr.includes(value) ? arr.filter(v => v !== value) : [...arr, value]
+}
 
 export default function DetectCSV() {
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
   const [rows, setRows] = useState<Row[]>([])
   const [tableName, setTableName] = useState('my_table')
-  const [targetDB, setTargetDB] = useState<TargetDB>('ClickHouse')
+
+  // по умолчанию выберем 2 популярные БД
+  const [selectedDBs, setSelectedDBs] = useState<TargetDB[]>(['ClickHouse',])
 
   const niceName = useMemo(() => file?.name || 'Choose CSV', [file])
 
   async function onDetect() {
     if (!file) { toast.error('Upload CSV first'); return }
+    if (selectedDBs.length === 0) { toast.error('Select at least one DB'); return }
     setLoading(true); setRows([])
     try {
       const cols = await detectCsvDuckTypes(file)
       if (!cols.length) toast.error('No columns detected')
-      else { setRows(cols); toast.success(`Types detected for ${targetDB}`) }
+      else { setRows(cols); toast.success(`Types detected for ${selectedDBs.join(', ')}`) }
     } catch (e) {
       console.error(e)
       toast.error('Detection failed')
@@ -42,8 +50,8 @@ export default function DetectCSV() {
             <FileText className="w-5 h-5 text-accent" />
           </div>
           <div>
-            <h2 className="text-xl font-semibold">CSV → Type Detector</h2>
-            <p className="text-white/60 text-sm">Загрузи CSV, выбери базу и нажми Detect</p>
+            <h2 className="text-xl font-semibold">CSV → Multi-DB Type Detector</h2>
+            <p className="text-white/60 text-sm">Загрузи CSV, выбери одну или несколько баз и жми Detect</p>
           </div>
         </div>
         <div className="hidden md:flex items-center gap-3">
@@ -74,28 +82,53 @@ export default function DetectCSV() {
           </label>
 
           <div className="grid gap-3 md:grid-cols-2">
-            <div className="flex items-center gap-2">
-              <Database className="w-4 h-4 text-white/70" />
-              <select
-                className="input"
-                value={targetDB}
-                onChange={(e) => setTargetDB(e.target.value as TargetDB)}
-              >
-                {TARGET_DBS.map(db => <option key={db} value={db}>{db}</option>)}
-              </select>
+            <div className="flex items-start gap-2">
+              <Database className="mt-2 w-4 h-4 text-white/70" />
+              <div className="w-full">
+                <div className="text-xs text-white/60 mb-1">Target databases (multi-select)</div>
+                {/* Чекбокс-группа без доп. библиотек */}
+                <div className="grid grid-cols-2 gap-2">
+                  {TARGET_DBS.map(db => {
+                    const checked = selectedDBs.includes(db)
+                    return (
+                      <button
+                        key={db}
+                        type="button"
+                        onClick={() => setSelectedDBs(prev => toggle(prev, db))}
+                        className={clsx(
+                          'w-full flex items-center justify-between rounded-lg border px-3 py-2 text-sm',
+                          checked ? 'border-accent bg-white/5' : 'border-border hover:border-accent/40'
+                        )}
+                        title={db}
+                        aria-pressed={checked}
+                      >
+                        <span>{db}</span>
+                        {checked && <CheckSquare className="w-4 h-4 text-accent" />}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
             </div>
-            <input
-              value={tableName}
-              onChange={(e) => setTableName(e.target.value)}
-              placeholder="Table/Collection name"
-              className="input"
-            />
+
+            <div>
+              <div className="text-xs text-white/60 mb-1">Table/Collection name</div>
+              <input
+                value={tableName}
+                onChange={(e) => setTableName(e.target.value)}
+                placeholder="my_table"
+                className="input"
+              />
+            </div>
           </div>
 
           <div>
-            <button className={clsx('btn', loading && 'opacity-60 pointer-events-none')} onClick={onDetect}>
+            <button
+              className={clsx('btn', loading && 'opacity-60 pointer-events-none')}
+              onClick={onDetect}
+            >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-              Detect for {targetDB}
+              Detect for {selectedDBs.length ? selectedDBs.join(', ') : '—'}
             </button>
           </div>
         </div>
@@ -103,40 +136,53 @@ export default function DetectCSV() {
         <div className="card p-4 space-y-2">
           <h3 className="text-sm text-white/70">Hints</h3>
           <ul className="text-sm text-white/60 list-disc ml-5 space-y-1">
-            <li>Определение типов делает DuckDB в браузере</li>
-            <li>Селектор применяет маппинг под выбранную БД</li>
-            <li>Mongo / Redis / Neo4j показывают рекомендуемые типы</li>
+            <li>Определение исходных типов делает DuckDB в браузере</li>
+            <li>Маппинг применяется для каждой выбранной БД и показывается рядом</li>
+            <li>Mongo / Redis / Neo4j — рекомендованные типы/форматы свойств</li>
           </ul>
         </div>
       </div>
 
       <div className="mt-6">
         <h3 className="text-lg mb-3">
-          Detected columns {rows.length ? `(${rows.length})` : ''} → Target: <span className="text-accent">{targetDB}</span>
+          Detected columns {rows.length ? `(${rows.length})` : ''} → Targets:&nbsp;
+          <span className="text-accent">{selectedDBs.length ? selectedDBs.join(', ') : '—'}</span>
         </h3>
         <div className="overflow-auto border border-border rounded-xl">
-          <table className="table min-w-[760px]">
+          <table className="table min-w-[900px]">
             <thead>
               <tr>
                 <th className="w-10">#</th>
                 <th>Name</th>
-                <th>Target Type ({targetDB})</th>
+                {/* динамические колонки по выбранным БД */}
+                {selectedDBs.map(db => (
+                  <th key={db}>Target Type ({db})</th>
+                ))}
                 <th>DuckDB Type</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={4} className="py-8 text-center text-white/60">Detecting…</td></tr>
+                <tr><td colSpan={3 + selectedDBs.length} className="py-8 text-center text-white/60">Detecting…</td></tr>
               ) : rows.length === 0 ? (
-                <tr><td colSpan={4} className="py-8 text-center text-white/40">Нет данных</td></tr>
+                <tr><td colSpan={3 + selectedDBs.length} className="py-8 text-center text-white/40">Нет данных</td></tr>
               ) : (
                 rows.map((c, i) => {
-                  const targetType = mapDuckToTarget(c.duckType, targetDB)
                   return (
-                    <tr key={i}>
+                    <tr key={`${c.name}-${i}`}>
                       <td className="text-white/60">{i + 1}</td>
                       <td className="font-medium">{c.name || <span className="text-white/50">EmptyHeader</span>}</td>
-                      <td><span className="badge">{targetType}</span></td>
+
+                      {/* тип для каждой выбранной БД */}
+                      {selectedDBs.map(db => {
+                        const targetType = mapDuckToTarget(c.duckType, db)
+                        return (
+                          <td key={`${db}-${i}`}>
+                            <span className="badge">{targetType}</span>
+                          </td>
+                        )
+                      })}
+
                       <td className="text-white/70">{c.duckType}</td>
                     </tr>
                   )
