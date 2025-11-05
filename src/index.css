@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0e0f13;
+  --color-card: #151821;
+  --color-border: #232633;
+  --color-primary: #7c3aed;
+  --color-accent: #00d0ff;
+
+  --shadow-card: 0 6px 24px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.02);
+}
+
+:root { color-scheme: dark; }
+* { box-sizing: border-box; }
+
+.btn { @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/90 hover:bg-primary transition font-medium; }
+.btn-outline { @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border hover:border-accent transition; }
+.card { @apply bg-card rounded-2xl border border-border; box-shadow: var(--shadow-card); }
+.input { @apply w-full rounded-lg border border-border bg-[#0f121a] px-3 py-2 outline-none focus:ring-2 focus:ring-accent/40; }
+.table { @apply w-full border-collapse; }
+.table th { @apply text-left text-sm text-white/70 font-normal border-b border-border pb-2; }
+.table td { @apply py-2 border-b border-border; }
+.badge { @apply inline-flex items-center rounded-md px-2 py-0.5 text-xs bg-white/10; }
