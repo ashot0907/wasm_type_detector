@@ -266,7 +266,7 @@ export default function DetectCSV() {
 
                 {/* Export visible grid as CSV */}
                 <button className="btn-outline" onClick={exportGridAsCSV}>
-                  <Download className="w-4 h-4" /> Export file as CSV
+                  <Download className="w-4 h-4" /> Export Types as CSV file
                 </button>
               </div>
 
