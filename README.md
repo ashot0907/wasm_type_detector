@@ -89,6 +89,25 @@ src/
 | BOOLEAN | UInt8 | boolean | tinyint(1) | NUMBER(1) | Boolean | boolean | Boolean |
 | TIMESTAMP | DateTime64 | timestamp | datetime(6) | TIMESTAMP | Date | string | DateTime |
 
+
+## 🏗️ Architecture
+
+Everything happens in the browser — no backend required.
+
+<p align="center">
+  <img src="./public/architecture.svg" alt="Architecture diagram: Browser UI → DuckDB-WASM → Mapping & Export" width="900">
+</p>
+
+**Flow:**
+1. User uploads CSV → file stays in browser memory.
+2. DuckDB-WASM (Web Worker) loads CSV via in-memory VFS and runs `read_csv_auto(...)`.
+3. We read `DESCRIBE` result (`name`, `duckType`) and show a schema grid.
+4. Selected target DBs are mapped on the fly with `mapDuckToTarget(...)`.
+5. Export options:
+   - **Copy query** — generate DDL / JSON schemas for selected DBs.
+   - **Export file as CSV** — download the visible grid as CSV.
+
+
 🧑‍💻 Credits
 
 Built with ❤️ by @ashot0907
