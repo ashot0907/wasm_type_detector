@@ -39,19 +39,6 @@ A beautiful web app built with **Vite + React + TypeScript + TailwindCSS** that 
 
 ---
 
-## 🚀 Run Locally
-
-### 1️⃣ Clone repo
-```bash
-git clone https://github.com/ashot0907/wasm_type_detector.git
-cd wasm_type_detector
-
-2️⃣ Install dependencies
-npm install
-
-3️⃣ Start dev server
-npm run dev
-
 
 🧠 How It Works
 
