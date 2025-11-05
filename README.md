@@ -97,10 +97,7 @@ Everything happens in the browser — no backend required.
 
 🧑‍💻 Credits
 
-Built with ❤️ by @ashot0907
-
-Powered by DuckDB-WASM
-
+Built by @ashot0907
 
 📜 License
 
