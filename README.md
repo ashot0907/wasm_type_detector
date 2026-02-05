@@ -1,5 +1,7 @@
 # 🦆 DuckDB WASM Type Detector
 
+https://type-detector-wasm.netlify.app/
+
 A beautiful web app built with **Vite + React + TypeScript + TailwindCSS** that uses **DuckDB-WASM** to detect column types in CSV files directly in your browser — no backend needed 🚀
 
 > 💡 Perfect for analysts, data engineers, and developers who want to preview and map CSV schema to multiple databases quickly.
